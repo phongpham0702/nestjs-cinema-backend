@@ -5,10 +5,23 @@ import { MoviesModule } from './modules/movies/movies.module';
 import { DatabaseModule } from './database/database.module';
 import { ServerConfigModule } from './config/server-config.module';
 import { UsersModule } from './modules/users/users.module';
+import { MovieTypeModule } from './modules/movie-type/movie-type.module';
+import { Pagination } from './shared/utils/pagination.provider';
+
+
 
 @Module({
-  imports: [ServerConfigModule, DatabaseModule, MoviesModule, UsersModule],
+  imports: [
+    ServerConfigModule,
+    DatabaseModule,
+    MoviesModule,
+    UsersModule,
+    MovieTypeModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    Pagination,
+  ],
 })
 export class AppModule {}

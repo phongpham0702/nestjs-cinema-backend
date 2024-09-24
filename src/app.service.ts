@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -8,6 +8,7 @@ export class AppService {
   }
   getHello(): string {
     console.log(this.configService.get('database.user'));
+    Logger.warn("hello")
     return 'Hello World!';
   }
 }

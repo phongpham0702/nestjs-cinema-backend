@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigRegisterName } from 'src/shared/constants/config-register-name.constant';
+import { Movies } from './entities/movies.entity';
+import { MovieType } from './entities/movie-type.entity';
 
 @Module({
   imports: [
@@ -9,6 +11,9 @@ import { ConfigRegisterName } from 'src/shared/constants/config-register-name.co
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
+
+        logging:true,
+        //entities:[Movies,MovieType],
         type: 'postgres',
         host: configService.get(`${ConfigRegisterName.database}.host`),
         port: configService.get(`${ConfigRegisterName.database}.port`),
