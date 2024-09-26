@@ -45,10 +45,6 @@ export class CreateMovieDto {
   @IsNotEmpty()
   types: number[];
 
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  newTypes?: string[];
   @IsString()
   @IsOptional()
   brief?: string;

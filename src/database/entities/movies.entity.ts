@@ -1,51 +1,71 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { MovieType } from './movie-type.entity';
 
+@Index('movie_pkey', ['id'], { unique: true })
+@Index('movie_name', ['movieName'], { unique: true })
 @Entity()
 export class Movies {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({
+    name: 'movie_name',
     type: 'varchar',
     length: 1024,
     nullable: false,
     unique: true,
   })
-  movieName: string;
+  movieName!: string;
 
   @Column({
     type: 'varchar',
     length: 1024,
     nullable: false,
   })
-  directors: string;
+  slug!: string;
 
   @Column({
     type: 'varchar',
     length: 1024,
     nullable: false,
   })
-  actors: string;
+  directors!: string;
+
+  @Column({
+    type: 'varchar',
+    length: 1024,
+    nullable: false,
+  })
+  actors!: string;
 
   @Column({
     type: 'int',
-    nullable:false,
-    
+    nullable: false,
   })
-  duration:number;
+  duration!: number;
 
   @Column({
+    name: 'release_date',
     type: 'timestamp',
     nullable: false,
   })
-  releaseDate: Date;
+  releaseDate!: Date;
 
-  @ManyToMany(() => MovieType,{
-    cascade:true
+  @ManyToMany(() => MovieType, {
+    cascade: true,
   })
   @JoinTable()
-  types:MovieType[]
+  types: MovieType[];
 
   @Column({
     type: 'text',
@@ -68,18 +88,25 @@ export class Movies {
   trailer?: string;
 
   @Column({
+    name: 'is_publish',
     type: 'boolean',
     nullable: true,
     default: false,
   })
   isPublish?: boolean;
 
-  @CreateDateColumn()
-  createdAt:Date;
+  @CreateDateColumn({
+    name: 'created_at',
+  })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt:Date;
+  @UpdateDateColumn({
+    name: 'updated_at',
+  })
+  updatedAt: Date;
 
-  @DeleteDateColumn()
-  deletedAt:Date;
+  @DeleteDateColumn({
+    name: 'deleted_at',
+  })
+  deletedAt: Date;
 }

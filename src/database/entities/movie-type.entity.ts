@@ -3,16 +3,19 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
+@Index('movie_type_pkey',['id'],{unique:true})
+@Entity({name:'movie_types'})
 export class MovieType {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({
+    name:'type_name',
     type: 'varchar',
     length: 256,
     nullable: false,

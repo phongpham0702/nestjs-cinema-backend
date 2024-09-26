@@ -4,6 +4,7 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  RequestTimeoutException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovieType } from 'src/database/entities/movie-type.entity';
@@ -16,6 +17,8 @@ import {
 } from 'typeorm';
 import { CreateMovieTypeDto } from '../dtos/create-movie-type.dto';
 import { Pagination } from 'src/shared/utils/pagination.provider';
+import { ERROR_MESSAGE } from 'src/shared/constants/error-message.constant';
+import { IPaginationResponse } from 'src/shared/interfaces/pagination-response.interface';
 
 @Injectable()
 export class MovieTypeService {
@@ -40,27 +43,32 @@ export class MovieTypeService {
   public async create(
     createMovieTypeDto: CreateMovieTypeDto,
   ): Promise<MovieType> {
-    let findMovieType: MovieType | null =
-      await this.movieTypeRepository.findOne({
-        where: {
-          typeName: createMovieTypeDto.typeName,
-        },
-      });
-
-    if (findMovieType) {
-      throw new BadRequestException('This movie type is already exists');
-    }
-
-    let newType: MovieType = await this.movieTypeRepository.create({
-      ...createMovieTypeDto,
-      typeName: createMovieTypeDto.typeName.toLowerCase().trim(),
-    });
+    let findMovieType: undefined | MovieType | null = undefined;
 
     try {
+      findMovieType = await this.movieTypeRepository.findOne({
+        where: {
+          typeName: createMovieTypeDto.typeName.toLowerCase(),
+        },
+      });
+    } catch (error) {
+      throw new RequestTimeoutException(
+        ERROR_MESSAGE.GENERAL.Unable_To_Process,
+      );
+    }
+    console.log(findMovieType);
+    if (findMovieType) {
+      throw new BadRequestException(ERROR_MESSAGE.MOVIE_TYPE.Already_Exist);
+    }
+
+    try {
+      let newType: MovieType = await this.movieTypeRepository.create({
+        ...createMovieTypeDto,
+        typeName: createMovieTypeDto.typeName.toLowerCase().trim(),
+      });
       return await this.movieTypeRepository.save(newType);
     } catch (error) {
-      this.serviceLogger.error(error);
-      throw new ConflictException('Adding new movie type failed');
+      throw new ConflictException(ERROR_MESSAGE.MOVIE_TYPE.Create_Fail);
     }
   }
 
@@ -71,25 +79,32 @@ export class MovieTypeService {
       conditions.typeName = ILike(`%${getMovieTypesDto.search}%`);
     }
 
-    const movieTypes = await this.paginationProvider.paginationQuery<MovieType>(
-      getMovieTypesDto,
-      this.movieTypeRepository,
-      {
-        queryCondition: conditions,
-        order: { typeName: 'ASC' },
-      },
-    );
+    const movieTypes: IPaginationResponse<MovieType> =
+      await this.paginationProvider.paginationQuery<MovieType>(
+        getMovieTypesDto,
+        this.movieTypeRepository,
+        {
+          queryCondition: conditions,
+          order: { typeName: 'ASC' },
+        },
+      );
 
     return movieTypes;
   }
 
-  public async findMultipleTypesById(typeIds: number[]) {
-    let results: MovieType[] = await this.movieTypeRepository.find({
-      where: {
-        id: In(typeIds),
-      },
-    });
-    return results;
+  public async findTypesById(typeIds: number[]) {
+    try {
+      let results: MovieType[] = await this.movieTypeRepository.find({
+        where: {
+          id: In(typeIds),
+        },
+      });
+      return results;
+    } catch (error) {
+      throw new RequestTimeoutException(
+        ERROR_MESSAGE.GENERAL.Unable_To_Process,
+      );
+    }
   }
 
   public async findTypesByName(typeNames: string | string[]) {}
