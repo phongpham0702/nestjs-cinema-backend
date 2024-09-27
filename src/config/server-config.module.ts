@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import envValidation from './env.validation';
-import databaseConfig from './database.config';
-import appConfig from './app.config';
 
 @Module({
   imports: [
@@ -11,7 +9,7 @@ import appConfig from './app.config';
       envFilePath: !process.env.NODE_ENV
         ? '.env'
         : `.env.${process.env.NODE_ENV}`,
-      load: [appConfig,databaseConfig],
+      load: [],
       validationSchema: envValidation,
     }),
   ],

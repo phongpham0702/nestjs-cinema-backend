@@ -7,6 +7,7 @@ import { ServerConfigModule } from './config/server-config.module';
 import { UsersModule } from './modules/users/users.module';
 import { MovieTypeModule } from './modules/movie-type/movie-type.module';
 import { Pagination } from './shared/utils/pagination.provider';
+import { UploadFileModule } from './modules/upload-file/upload-file.module';
 
 
 
@@ -17,6 +18,7 @@ import { Pagination } from './shared/utils/pagination.provider';
     MoviesModule,
     UsersModule,
     MovieTypeModule,
+    UploadFileModule,
   ],
   controllers: [AppController],
   providers: [
