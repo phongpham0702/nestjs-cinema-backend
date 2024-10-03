@@ -1,4 +1,4 @@
-import { GOOGLE_STORAGE_POSTER_FOLDER_NAME } from './../../../shared/constants/file-upload.constant';
+import { GOOGLE_STORAGE_POSTER_FOLDER_NAME } from '../../../shared/constants/file-upload.constant';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { GoogleStorageProvider } from './google-storage.provider';
 import {
@@ -8,7 +8,7 @@ import {
 } from 'src/shared/constants/file-upload.constant';
 
 @Injectable()
-export class UploadFileService {
+export class FileStorageService {
   constructor(
     /**
      * Inject Google Storage provider

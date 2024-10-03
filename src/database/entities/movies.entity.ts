@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { MovieType } from './movie-type.entity';
+import { Exclude } from 'class-transformer';
 
 @Index('movie_pkey', ['id'], { unique: true })
 @Index('movie_name', ['movieName'], { unique: true })

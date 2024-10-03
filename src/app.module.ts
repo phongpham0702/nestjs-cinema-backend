@@ -5,11 +5,8 @@ import { MoviesModule } from './modules/movies/movies.module';
 import { DatabaseModule } from './database/database.module';
 import { ServerConfigModule } from './config/server-config.module';
 import { UsersModule } from './modules/users/users.module';
-import { MovieTypeModule } from './modules/movie-type/movie-type.module';
 import { Pagination } from './shared/utils/pagination.provider';
-import { UploadFileModule } from './modules/upload-file/upload-file.module';
-
-
+import { FileStorageModule } from './modules/file-storage/file-storage.module';
 
 @Module({
   imports: [
@@ -17,13 +14,9 @@ import { UploadFileModule } from './modules/upload-file/upload-file.module';
     DatabaseModule,
     MoviesModule,
     UsersModule,
-    MovieTypeModule,
-    UploadFileModule,
+    FileStorageModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    Pagination,
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

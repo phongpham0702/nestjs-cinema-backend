@@ -1,15 +1,18 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { Storage } from '@google-cloud/storage';
+import { Bucket, Storage } from '@google-cloud/storage';
 import { ConfigService } from '@nestjs/config';
 import { SaveData } from '@google-cloud/storage/build/cjs/src/file';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { ERROR_MESSAGE } from 'src/shared/constants/error-message.constant';
-import { GOOGLE_STORAGE_BUCKET_URL } from 'src/shared/constants/file-upload.constant';
+import { ERROR_MESSAGE } from 'src/shared/constants/common-message.constant';
+import {
+  GOOGLE_STORAGE_BUCKET_NAME,
+  GOOGLE_STORAGE_BUCKET_URL,
+} from 'src/shared/constants/file-upload.constant';
 @Injectable()
 export class GoogleStorageProvider {
   private googleStorage: Storage;
-
+  private bucket: Bucket;
   constructor(private readonly configService: ConfigService) {
     this.googleStorage = new Storage({
       projectId: this.configService.get<string>('PROJECT_ID'),
@@ -21,6 +24,8 @@ export class GoogleStorageProvider {
         client_id: this.configService.get<string>('CLIENT_ID'),
       },
     });
+
+    this.bucket = this.googleStorage.bucket(GOOGLE_STORAGE_BUCKET_NAME);
   }
 
   public async uploadFromMemory(
@@ -28,9 +33,9 @@ export class GoogleStorageProvider {
     destination?: string,
   ) {
     let fileName = this.generateFileName(uploadFile.originalname);
-    let path = destination ? `${destination}/${fileName}` : fileName;
+    let path = destination ? `${destination}${fileName}` : fileName;
 
-    let file = this.googleStorage.bucket('cinema_images_bucket').file(path);
+    let file = this.bucket.file(path);
 
     try {
       await file.save(uploadFile.buffer, { contentType: uploadFile.mimetype });
@@ -42,17 +47,6 @@ export class GoogleStorageProvider {
       upload: true,
       fileURL: `${GOOGLE_STORAGE_BUCKET_URL}${path}`,
     };
-  }
-
-  public async uploadFile(fileName: string, fileData: SaveData) {
-    let path = `movie_posters/${fileName}`;
-    console.log(this.configService.get<string>('PRIVATE_KEY'));
-    let testCreatefile = await this.googleStorage
-      .bucket('cinema_images_bucket')
-      .file(path)
-      .save(fileData);
-    //console.log(testCreatefile);
-    return '';
   }
 
   private generateFileName(fileOriginalName: string) {

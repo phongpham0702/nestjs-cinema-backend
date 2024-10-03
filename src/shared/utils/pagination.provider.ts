@@ -1,49 +1,34 @@
-import { Inject, Injectable, RequestTimeoutException } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
+import { Injectable, RequestTimeoutException } from '@nestjs/common';
 import {
-  FindOptionsOrder,
-  FindOptionsSelect,
-  FindOptionsWhere,
+  FindOneOptions,
   ObjectLiteral,
   Repository,
 } from 'typeorm';
 import { PaginationQueryDto } from '../dtos/pagination-query.dto';
 import { IPaginationResponse } from '../interfaces/pagination-response.interface';
-import { ERROR_MESSAGE } from '../constants/error-message.constant';
+import { ERROR_MESSAGE } from '../constants/common-message.constant';
 
 @Injectable()
 export class Pagination {
-  constructor(
-    /**
-     * Inject Express Request
-     */
-    @Inject(REQUEST)
-    private readonly request: Request,
-  ) {}
+  constructor() {}
 
   public async paginationQuery<T extends ObjectLiteral>(
     paginationQuery: PaginationQueryDto,
 
     repository: Repository<T>,
-    options?: {
-      queryCondition?: FindOptionsWhere<T>;
-      order?: FindOptionsOrder<T>;
-      select?: FindOptionsSelect<T>;
-    },
+
+    options?: FindOneOptions<T>,
   ) {
     let result: T[];
     let totalItems: number;
     try {
       result = await repository.find({
-        where: options?.queryCondition,
-        order: options?.order,
+        ...options,
         skip: (paginationQuery.page - 1) * paginationQuery.limit,
         take: paginationQuery.limit,
-        select: options?.select,
       });
 
-      totalItems = await repository.countBy(options?.queryCondition);
+      totalItems = await repository.countBy(options?.where);
     } catch (error) {
       throw new RequestTimeoutException(
         `${Pagination.name}: ${ERROR_MESSAGE.GENERAL.Unable_To_Process}`,
