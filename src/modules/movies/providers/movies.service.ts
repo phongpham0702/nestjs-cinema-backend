@@ -9,11 +9,12 @@ import { CreateMovieDto } from '../dtos/create-movie.dto';
 import { FindOptionsSelect, Repository } from 'typeorm';
 import { Movies } from 'src/database/entities/movies.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MovieTypeService } from '../../movie-type/providers/movie-type.service';
+import { MovieTypeService } from './movie-type.service';
 import { MovieType } from 'src/database/entities/movie-type.entity';
-import { ERROR_MESSAGE } from 'src/shared/constants/error-message.constant';
+import { ERROR_MESSAGE } from 'src/shared/constants/common-message.constant';
 import * as SlugGenerator from 'slug';
 import { UpdateMovieDto } from '../dtos/update-movie.dto';
+import { FileStorageService } from 'src/modules/file-storage/providers/file-storage.service';
 
 @Injectable()
 export class MoviesService {
@@ -28,10 +29,18 @@ export class MoviesService {
      * Inject MovieType Service
      */
     private readonly movieTypeService: MovieTypeService,
+
+    /**
+     * Inject FileStorage Service
+     */
+    private readonly fileStorageService: FileStorageService,
   ) {}
 
-  public async create(createMovieDto: CreateMovieDto) {
-    const findMovie = await this.findbyName(createMovieDto.movieName, {
+  public async create(
+    createMovieDto: CreateMovieDto,
+    poster: Express.Multer.File,
+  ) {
+    const findMovie:Movies = await this.findbyName(createMovieDto.movieName, {
       id: true,
     });
 
@@ -40,9 +49,19 @@ export class MoviesService {
 
     let { directors: directorsList, actors: actorsList } = createMovieDto;
 
-    let types: MovieType[] = await this.movieTypeService.findTypesById(
+    let types:MovieType[] = await this.movieTypeService.findTypesById(
       createMovieDto.types,
+      {
+        select: {
+          id: true,
+          typeName: true,
+        },
+        findAll: true,
+      },
     );
+  
+    const { fileURL: posterURL } =
+      await this.fileStorageService.uploadPoster(poster);
 
     try {
       const newMovie: Movies = this.movieRepository.create({
@@ -51,6 +70,7 @@ export class MoviesService {
         directors: directorsList.join(', '),
         actors: actorsList.join(', '),
         types: types,
+        thumbnail: posterURL,
       });
 
       return await this.movieRepository.save(newMovie);

@@ -1,5 +1,6 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  ArrayMinSize,
   IsArray,
   IsDate,
   IsInt,
@@ -20,9 +21,10 @@ export class CreateMovieDto {
   @IsArray()
   @IsString({ each: true })
   @IsNotEmpty()
+  @Transform(({ value }): string[] => (Array.isArray(value) ? value : [value]))
   directors: string[];
 
-  @IsArray()
+  //@IsArray()
   @IsString({ each: true })
   @IsNotEmpty()
   actors: string[];
@@ -36,13 +38,12 @@ export class CreateMovieDto {
   @IsNotEmpty()
   releaseDate: Date;
 
-  @IsUrl()
-  @MaxLength(1024)
-  thumbnail: string;
-
   @IsArray()
   @IsInt({ each: true })
   @IsNotEmpty()
+  @Transform(({ value }): number[] =>
+    Array.isArray(value) ? value.map((v) => Number(v)) : [Number(value)],
+  )
   types: number[];
 
   @IsString()
